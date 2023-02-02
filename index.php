@@ -45,7 +45,7 @@
                 var macongdan = row.find('td:nth-child(2)').text();
                 // alert(id);
                 $.ajax({
-                    type: 'GET',
+                    type: 'POST',
                     // url: 'index.php',
                     data: { deletecongdan: macongdan },
                     success: function (result) {
@@ -138,6 +138,51 @@
                 </tr>
             </table>
         </form>
+
+        <form action="#" method="POST">
+            <table border="1" cellspacing="0">
+                <tr>
+                    <td>Tên điểm cách ly</td>
+                    <td>
+                        <?php
+                        echo "<select name='selectdiemcachly'>";
+
+                        $hienthidiemcachly = "select * from diemcachly";
+                        $ketquahienthidiemcachly = $connect->query($hienthidiemcachly);
+                        if ($ketquahienthidiemcachly->num_rows > 0) {
+                            while ($row = $ketquahienthidiemcachly->fetch_row()) {
+                                echo "<option value='$row[0]'>$row[1]</option>";
+                            }
+                        } else
+                            echo "Không có thông tin";
+                        echo "</select>";
+                        ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Tên công dân</td>
+                    <td>
+                        <?php
+                        echo "<select name='selectcongdan'>";
+
+                        $hienthicongdan = "select * from congdan";
+                        $ketquahienthicongdan = $connect->query($hienthicongdan);
+                        if ($ketquahienthicongdan->num_rows > 0) {
+                            while ($row = $ketquahienthicongdan->fetch_row()) {
+                                echo "<option value='$row[0]'>$row[1]</option>";
+                            }
+                        } else
+                            echo "Không có thông tin";
+                        echo "</select>";
+                        ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Danh sách các triệu chứng</td>
+                </tr>
+            </table>
+        </form>
+
     </div>
 
     <br><br>
@@ -207,6 +252,17 @@
             }
         }
 
+        // if (isset($_GET['delete_id']) && $_GET['delete_id'] > 0) {
+        if (isset($_POST['submit']) && $_POST['submit'] == "DELETE") {
+            $deletecongdan = $_POST['deletecongdan'];
+            $str = "DELETE FROM congdan WHERE `congdan`.`macongdan` = '$deletecongdan'";
+            if ($connect->query($str) == true) {
+                echo "Xoá thành công";
+            } else {
+                echo "Xoá không thành công";
+            }
+        }
+
         // include "connect.php";
         $hienthicongdan = "select * from congdan";
         $ketquahienthicongdan = $connect->query($hienthicongdan);
@@ -221,8 +277,8 @@
                 } else
                     $displaygioitinh = "Nữ";
                 echo "<tr>";
-                echo "<td>$stt</td><td>$row[0]</td><td>$row[1]</td><td>$displaygioitinh</td><td>$row[3]</td><td>$row[4]</td><td><a href='#' class='viewcongdan'>View</a>&nbsp<input type='hidden'
-                value='" . $row[0] . "' name='deletecongdan'><input type='submit' name='submit' class='deletecongdan' value='DELETE'>
+                echo "<td>$stt</td><td>$row[0]</td><td>$row[1]</td><td>$displaygioitinh</td><td>$row[3]</td><td>$row[4]</td><td><form method='post' action='#'><input type='hidden'
+                value='" . $row[0] . "' name='deletecongdan'><a href='?viewcongdan=$row[0]'>View</a>&nbsp<input type='submit' name='submit' class='deletecongdan' value='DELETE'></form>
                 </td>";
                 echo "</tr>";
                 $stt++;
@@ -233,17 +289,99 @@
             echo "</tr>";
         }
 
-        // if (isset($_GET['delete_id']) && $_GET['delete_id'] > 0) {
-        if (isset($_POST['submit']) && $_POST['submit'] == "DELETE") {
-            $deletecongdan = $_POST['deletecongdan'];
-            $str = "DELETE FROM congdan WHERE `congdan`.`macongdan` = '$deletecongdan'";
-            if ($connect->query($str) == true) {
-                echo "Xoá thành công";
-            } else {
-                echo "Xoá không thành công";
+        ?>
+
+        <?php
+        if (isset($_GET['viewcongdan'])) {
+            echo "ok";
+            $viewcongdan = $_GET['viewcongdan'];
+            echo $viewcongdan;
+            $hienthicongdan = "select * from congdan where macongdan = '$viewcongdan'";
+            $ketquahienthicongdan = $connect->query($hienthicongdan);
+            $displaygioitinh = '';
+            if ($ketquahienthicongdan->num_rows > 0) {
+                while ($row = $ketquahienthicongdan->fetch_row()) {
+                    if ($row[2] == 1) {
+                        $displaygioitinh = "checked";
+                    } else
+                        $displaygioitinh = "";
+                    echo "<form method=\"POST\" action=\"#\">";
+                    echo "            <table border=\"1\" cellspacing=\"0\">";
+                    echo "                <tr>";
+                    echo "                    <td>Mã công dân</td>";
+                    echo "                    <td><input type=\"input\" name=\"macongdan\" value='$row[0]' readonly></td>";
+                    echo "                </tr>";
+                    echo "                <tr>";
+                    echo "                    <td>Tên công dân</td>";
+                    echo "                    <td><input type=\"input\" name=\"tencongdan\" value='$row[1]'></td>";
+                    echo "                </tr>";
+                    echo "                <tr>";
+                    echo "                    <td>Giới tính </td>";
+                    echo "                    <td><input type=\"checkbox\" name=\"gioitinh\" $displaygioitinh> (Chọn tương ứng giới tính là 'Nam')</td>";
+                    echo "                </tr>";
+                    echo "                <tr>";
+                    echo "                    <td>Năm sinh </td>";
+                    echo "                    <td><input type=\"date\" name=\"namsinh\" value='$row[3]'></td>";
+                    echo "                </tr>";
+                    echo "                <tr>";
+                    echo "                    <td>Nước về </td>";
+                    echo "                    <td><input type=\"input\" name=\"nuocve\" value='$row[4]'></td>";
+                    echo "                </tr>";
+                    echo "                <tr>";
+                    echo "                    <td>Tên điểm cách ly </td>";
+                    echo "                    <td>";
+                    echo "<select name='selectdiemcachly'>";
+                    $hienthidiemcachly = "select * from diemcachly";
+                    $ketquahienthidiemcachly = $connect->query($hienthidiemcachly);
+                    if ($ketquahienthidiemcachly->num_rows > 0) {
+                        while ($row = $ketquahienthidiemcachly->fetch_row()) {
+                            echo "<option value='$row[0]'>$row[1]</option>";
+                        }
+                    } else
+                        echo "Không có thông tin";
+                    echo "</select>";
+                    echo "                    </td>";
+                    echo "                </tr>";
+                    echo "";
+                    echo "                <tr>";
+                    echo "                    <td colspan=\"2\" align=\"center\"><input type=\"Submit\" value=\"Update\" name=\"Submit\"></td>";
+                    echo "                </tr>";
+                    echo "            </table>";
+                    echo "        </form>";
+                }
             }
         }
-        $connect->close();
+
+        if (isset($_POST['Submit']) && ($_POST['Submit'] == "Update")) {
+            // include "connect.php";
+            var_dump("ok");
+            $macongdan = $_POST['macongdan'];
+            $tencongdan = $_POST['tencongdan'];
+            var_dump($tencongdan);
+            $gioitinh = 0;
+            if (array_key_exists('gioitinh', $_POST)) {
+                if (!empty($_POST['gioitinh'])) {
+                    $gioitinh = 1;
+                }
+            }
+            $namsinh = $_POST['namsinh'];
+            $nuocve = $_POST['nuocve'];
+            //  $selectdiemcachly = $_POST[''];
+            if (isset($_POST['selectdiemcachly'])) {
+                $madiemcachly = $_POST['selectdiemcachly'];
+            }
+            echo $madiemcachly;
+
+            // $str = "insert into congdan values ('$macongdan','$tencongdan','$gioitinh', '$namsinh','$nuocve','$madiemcachly')";
+            $str = "UPDATE `congdan` SET `TenCongDan` = '$tencongdan', `GioiTinh` = '$gioitinh', `NamSinh` = '$namsinh', `NuocVe` = '$nuocve', `MaDiemCachLy` = 'HCM' WHERE `congdan`.`MaCongDan` = '$macongdan'";
+            if ($connect->query($str) == true) {
+                echo "Update thành công";
+            } else {
+                echo "Update không thành công";
+            }
+        }
+
+        // $connect->close();
         ?>
     </div>
 
