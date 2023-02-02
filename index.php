@@ -45,17 +45,14 @@
                 var macongdan = row.find('td:nth-child(2)').text();
                 // alert(id);
                 $.ajax({
-                    type: 'POST',
-                    url: 'index.php',
+                    type: 'GET',
+                    // url: 'index.php',
                     data: { deletecongdan: macongdan },
                     success: function (result) {
-                        if (result == 'success'){
                         row.remove();
-                        } else {
-                            alert('request fails');
-                        }
+
                     }
-            });
+                });
             });
         });
 
@@ -208,13 +205,11 @@
             } else {
                 echo "Thêm không thành công";
             }
-
         }
 
         // include "connect.php";
         $hienthicongdan = "select * from congdan";
         $ketquahienthicongdan = $connect->query($hienthicongdan);
-        echo "<form method=\"POST\" action=\"\">";
         echo "<table border='1' cellspacing='0'>";
         echo "<tr><th>STT</th><th>Mã công dân</th><th>Tên công dân</th><th>Giới tính</th><th>Năm sinh</th><th>Nước về</th><th>Chức năng</th></tr>";
         $stt = 1;
@@ -226,9 +221,9 @@
                 } else
                     $displaygioitinh = "Nữ";
                 echo "<tr>";
-                echo "<td>$stt</td><td>$row[0]</td><td>$row[1]</td><td>$displaygioitinh</td><td>$row[3]</td><td>$row[4]</td><td><a href='#' class='viewcongdan'>View</a>&nbsp<form action='#' method='post'><input type='hidden'
-                value='".$row[0]."' name='deletecongdan'><input type='submit' name='submit' class='deletecongdan' value='DELETE'>
-                </form></td>";
+                echo "<td>$stt</td><td>$row[0]</td><td>$row[1]</td><td>$displaygioitinh</td><td>$row[3]</td><td>$row[4]</td><td><a href='#' class='viewcongdan'>View</a>&nbsp<input type='hidden'
+                value='" . $row[0] . "' name='deletecongdan'><input type='submit' name='submit' class='deletecongdan' value='DELETE'>
+                </td>";
                 echo "</tr>";
                 $stt++;
             }
@@ -237,8 +232,6 @@
             echo "<td colspan='6'>Không có thông tin công dân</td>";
             echo "</tr>";
         }
-        echo "</form>";
-
 
         // if (isset($_GET['delete_id']) && $_GET['delete_id'] > 0) {
         if (isset($_POST['submit']) && $_POST['submit'] == "DELETE") {
