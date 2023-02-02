@@ -42,20 +42,20 @@
         $(document).ready(function () {
             $('.deletecongdan').click(function () {
                 var row = $(this).closest('tr');
-                var id = row.find('td:nth-child(2)').text();
+                var macongdan = row.find('td:nth-child(2)').text();
                 // alert(id);
                 $.ajax({
                     type: 'POST',
                     url: 'index.php',
-                    data: { macongdan: id },
+                    data: { deletecongdan: macongdan },
                     success: function (result) {
-                        if (result === 'success') {
-                            row.remove();
+                        if (result == 'success'){
+                        row.remove();
                         } else {
-                            alert('Error: Failed to delete record.');
+                            alert('request fails');
                         }
                     }
-                });
+            });
             });
         });
 
@@ -160,9 +160,7 @@
             } else {
                 echo "Thêm không thành công";
             }
-            header("Location: index.php");
 
-            $connect->close();
         }
 
         // include "connect.php";
@@ -183,8 +181,8 @@
             echo "<td colspan='5'>Không có thông tin điểm cách ly</td>";
             echo "</tr>";
         }
-        // $connect->close();
-        
+
+
         //Chọn hệ ký tự là utf8 để có thể in ra tiếng Việt. $connect->set_charset('utf8'); //csdl tiếng việt
         if (isset($_POST['Submit']) && ($_POST['Submit'] == "Thêm công dân")) {
             // include "connect.php";
@@ -210,14 +208,13 @@
             } else {
                 echo "Thêm không thành công";
             }
-            header("Location: index.php");
 
-            // $connect->close();
         }
 
         // include "connect.php";
         $hienthicongdan = "select * from congdan";
         $ketquahienthicongdan = $connect->query($hienthicongdan);
+        echo "<form method=\"POST\" action=\"\">";
         echo "<table border='1' cellspacing='0'>";
         echo "<tr><th>STT</th><th>Mã công dân</th><th>Tên công dân</th><th>Giới tính</th><th>Năm sinh</th><th>Nước về</th><th>Chức năng</th></tr>";
         $stt = 1;
@@ -229,7 +226,9 @@
                 } else
                     $displaygioitinh = "Nữ";
                 echo "<tr>";
-                echo "<td>$stt</td><td>$row[0]</td><td>$row[1]</td><td>$displaygioitinh</td><td>$row[3]</td><td>$row[4]</td><td><a href='#' class='viewcongdan'>View</a>&nbsp<button type='submit' name='Delete' class='deletecongdan'>Delete</button></td>";
+                echo "<td>$stt</td><td>$row[0]</td><td>$row[1]</td><td>$displaygioitinh</td><td>$row[3]</td><td>$row[4]</td><td><a href='#' class='viewcongdan'>View</a>&nbsp<form action='#' method='post'><input type='hidden'
+                value='".$row[0]."' name='deletecongdan'><input type='submit' name='submit' class='deletecongdan' value='DELETE'>
+                </form></td>";
                 echo "</tr>";
                 $stt++;
             }
@@ -238,16 +237,20 @@
             echo "<td colspan='6'>Không có thông tin công dân</td>";
             echo "</tr>";
         }
-        // $connect->close();
-        
-        if (isset($_POST['Delete']) && ($_POST['Delete'] == "Delete")) {
-            $str = "delete from congdan where '$row[0]' = macongdan";
+        echo "</form>";
+
+
+        // if (isset($_GET['delete_id']) && $_GET['delete_id'] > 0) {
+        if (isset($_POST['submit']) && $_POST['submit'] == "DELETE") {
+            $deletecongdan = $_POST['deletecongdan'];
+            $str = "DELETE FROM congdan WHERE `congdan`.`macongdan` = '$deletecongdan'";
             if ($connect->query($str) == true) {
                 echo "Xoá thành công";
             } else {
                 echo "Xoá không thành công";
             }
         }
+        $connect->close();
         ?>
     </div>
 
